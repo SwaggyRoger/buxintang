@@ -1,0 +1,6 @@
+_archive
+deploy.R
+tests
+.Renviron.example
+README.md
+.claude

@@ -1,0 +1,6 @@
+# 複製本檔為 .Renviron（同一層目錄），填入你的金鑰，然後重啟 R session。
+# .Renviron 已列在 .gitignore，不會被提交，也不會被 deploy.R 打包上去。
+#
+# 金鑰申請：https://console.anthropic.com/settings/keys
+
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

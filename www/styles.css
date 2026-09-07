@@ -1,0 +1,720 @@
+/* ==========================================================================
+   卜心堂 — 夜廟燭火 (night-temple candlelight)
+   Palette / type / motion 依 ui-ux-pro-max 的作法：先定調性，再由調性推色與字。
+   調性：安靜、暗、暖。金為香火，硃砂為動、為印。宣紙只在「籤解」出現一次。
+   ========================================================================== */
+
+:root {
+  --ink-0: #0B0908;
+  --ink-1: #14100E;
+  --ink-2: #1C1614;
+  --ink-3: #2A2220;
+  --line:  rgba(232, 220, 200, .10);
+  --line-2: rgba(232, 220, 200, .18);
+
+  --paper:   #E8DCC8;
+  --paper-2: #CFC2A8;
+  --dim:     #8A7F6E;
+  --dimmer:  #6B6155;
+
+  --gold:    #C9A227;
+  --gold-2:  #E3C878;
+  --gold-dim: rgba(201, 162, 39, .35);
+
+  --cinnabar:   #B2352C;
+  --cinnabar-2: #D8574A;
+
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --slow: 1100ms;
+}
+
+/* --- 底 ------------------------------------------------------------------ */
+html, body { background: var(--ink-0); }
+
+body {
+  color: var(--paper);
+  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  font-weight: 300;
+  letter-spacing: .04em;
+  line-height: 1.9;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* 香火的光暈，緩慢呼吸 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 42% at 50% 8%,  rgba(201, 162, 39, .13), transparent 70%),
+    radial-gradient(90% 70% at 50% 105%, rgba(178, 53, 44, .07), transparent 70%);
+  animation: breathe 11s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* 暗角：把視線收到中間那盞燈上。
+   （原本用 1px 網格做紙紋，任何縮放都會起摩爾紋，改用大尺度漸層） */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(125% 95% at 50% 38%,
+                              transparent 42%,
+                              rgba(0, 0, 0, .30) 74%,
+                              rgba(0, 0, 0, .62) 100%);
+  z-index: 0;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: .78; }
+  50%      { opacity: 1; }
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 660px;
+  margin: 0 auto;
+  padding: clamp(3rem, 9vh, 6rem) 1.5rem 6rem;
+}
+
+/* --- 標題 ---------------------------------------------------------------- */
+.brand { text-align: center; }
+
+.brand__name {
+  font-size: clamp(2.4rem, 9vw, 3.6rem);
+  font-weight: 900;
+  letter-spacing: .38em;
+  text-indent: .38em;           /* 抵掉字距造成的右偏 */
+  color: var(--gold-2);
+  margin: 0 0 .9rem;
+  text-shadow: 0 0 34px rgba(201, 162, 39, .30);
+}
+
+.brand__tag {
+  font-size: .84rem;
+  letter-spacing: .5em;
+  text-indent: .5em;
+  color: var(--dim);
+  margin: 0;
+}
+
+.brand__creed {
+  margin-top: 2.4rem;
+  font-size: .92rem;
+  color: var(--paper-2);
+  line-height: 2.3;
+}
+
+/* --- 燭火 ---------------------------------------------------------------- */
+.ember {
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.6rem;
+}
+
+.ember__glow {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold-2);
+  box-shadow:
+    0 0 10px 3px rgba(227, 200, 120, .85),
+    0 0 34px 12px rgba(201, 162, 39, .40),
+    0 0 76px 30px rgba(178, 53, 44, .16);
+  animation: flicker 3.4s ease-in-out infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1;   transform: translateY(0)      scale(1); }
+  22%      { opacity: .72; transform: translateY(-1.5px) scale(.92); }
+  47%      { opacity: 1;   transform: translateY(.5px)   scale(1.06); }
+  68%      { opacity: .84; transform: translateY(-1px)   scale(.96); }
+}
+
+/* --- 通用文字 ------------------------------------------------------------ */
+.quiet {
+  color: var(--dimmer);
+  font-size: .8rem;
+  letter-spacing: .16em;
+  line-height: 2;
+}
+
+.ink-rule {
+  height: 1px;
+  margin: 2.6rem auto;
+  background: linear-gradient(90deg, transparent, var(--line-2) 20%, var(--line-2) 80%, transparent);
+}
+
+.stage { animation: inkIn var(--slow) var(--ease) backwards; }
+
+@keyframes inkIn {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to   { opacity: 1; transform: none;             filter: blur(0); }
+}
+
+/* --- 問句（落筆之後不改，以墨書呈現） ------------------------------------ */
+.asked {
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.asked__label {
+  font-size: .72rem;
+  letter-spacing: .42em;
+  text-indent: .42em;
+  color: var(--dimmer);
+  margin-bottom: .7rem;
+}
+.asked__text {
+  font-size: 1.12rem;
+  color: var(--paper);
+  line-height: 2;
+  border-left: 2px solid var(--gold-dim);
+  border-right: 2px solid var(--gold-dim);
+  padding: .2rem 1.4rem;
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* --- 輸入 ---------------------------------------------------------------- */
+.ask-field { margin: 0 0 1.2rem; }
+
+.ask-field textarea.form-control {
+  background: rgba(232, 220, 200, .045);
+  border: 1px solid var(--line-2);
+  border-radius: 2px;
+  color: var(--paper);
+  font-family: inherit;
+  font-size: 1.06rem;
+  line-height: 2.1;
+  letter-spacing: .05em;
+  padding: 1.3rem 1.4rem;
+  resize: none;
+  transition: border-color 500ms var(--ease), background 500ms var(--ease);
+}
+.ask-field textarea.form-control::placeholder { color: var(--dimmer); }
+.ask-field textarea.form-control:focus {
+  background: rgba(232, 220, 200, .07);
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 1px var(--gold-dim), 0 0 30px rgba(201, 162, 39, .10) inset;
+  outline: none;
+}
+
+/* --- 按鈕 ---------------------------------------------------------------- */
+.btn.btn-rite {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--gold-dim);
+  border-radius: 2px;
+  color: var(--gold-2);
+  font-family: inherit;
+  font-size: .98rem;
+  font-weight: 400;
+  letter-spacing: .34em;
+  text-indent: .34em;
+  padding: 1.05rem 1rem;
+  transition: all 450ms var(--ease);
+}
+.btn.btn-rite:hover:not(:disabled),
+.btn.btn-rite:focus-visible:not(:disabled) {
+  background: rgba(201, 162, 39, .08);
+  border-color: var(--gold);
+  color: #F2E3B4;
+  box-shadow: 0 0 40px rgba(201, 162, 39, .12);
+  outline: none;
+}
+.btn.btn-rite:disabled { opacity: .3; }
+
+.btn.btn-ghost {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--dimmer);
+  font-family: inherit;
+  font-size: .82rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  padding: 1rem;
+  margin-top: .6rem;
+  transition: color 400ms var(--ease);
+}
+.btn.btn-ghost:hover { color: var(--paper-2); }
+
+/* --- 爻 ------------------------------------------------------------------ */
+.hexagram {
+  display: flex;
+  flex-direction: column;
+  gap: .78rem;
+  padding: .4rem 0;
+}
+
+.yao {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr 1.6rem;
+  align-items: center;
+  gap: .8rem;
+}
+
+/* 不列爻題時整列只剩「爻身 + 動爻記號」兩欄 */
+.hexagram--bare .yao { grid-template-columns: 1fr 1.2rem; gap: .5rem; }
+
+.yao__title {
+  font-size: .74rem;
+  letter-spacing: .12em;
+  color: var(--dimmer);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.yao__glyph {
+  display: flex;
+  gap: .9rem;
+  height: 13px;
+}
+
+.yao__glyph > i {
+  flex: 1;
+  background: var(--paper-2);
+  border-radius: 1px;
+  transform-origin: center;
+  animation: drawBar 620ms var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.yao__glyph > i.bar-full { flex: 1 0 100%; }
+
+.yao__mark {
+  font-size: .82rem;
+  color: var(--dimmer);
+  text-align: left;
+  line-height: 1;
+}
+
+@keyframes drawBar {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+
+/* 動爻：硃砂，微微起伏 —— 它是這一卦裡「正在變的地方」 */
+.yao.is-moving .yao__glyph > i {
+  background: var(--cinnabar-2);
+  box-shadow: 0 0 16px rgba(216, 87, 74, .40);
+  animation: drawBar 620ms var(--ease) backwards,
+             pulse 3.6s ease-in-out 1.4s infinite;
+}
+.yao.is-moving .yao__mark { color: var(--cinnabar-2); }
+.yao.is-moving .yao__title { color: var(--cinnabar-2); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .62; }
+}
+
+/* 未擲之爻 */
+.yao--pending .yao__glyph > i {
+  background: none;
+  border-top: 1px dashed rgba(232, 220, 200, .16);
+  height: 0;
+  align-self: center;
+  animation: none;
+}
+
+/* --- 銅錢 ---------------------------------------------------------------- */
+.coins {
+  display: flex;
+  justify-content: center;
+  gap: 1.1rem;
+  margin: 2.2rem 0 1.8rem;
+  min-height: 58px;
+  align-items: center;
+}
+
+.coin {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .9rem;
+  border: 1px solid var(--gold-dim);
+  color: var(--dimmer);
+  position: relative;
+  animation: coinLand 560ms var(--ease) backwards;
+  animation-delay: calc(var(--c, 0) * 130ms);
+}
+
+/* 中央方孔。字要壓在孔上，所以孔畫淡一點，字自帶底色把孔切開。 */
+.coin::after {
+  content: "";
+  position: absolute;
+  width: 22px; height: 22px;
+  border: 1px solid currentColor;
+  opacity: .22;
+}
+.coin > span {
+  position: relative;
+  z-index: 1;
+  background: var(--ink-0);   /* 錢面只是淡漸層，用底色即可貼合 */
+  padding: 0 .3rem;
+  letter-spacing: 0;
+}
+
+.coin--blank { border-style: dashed; opacity: .35; animation: none; }
+.coin--yang {
+  border-color: var(--gold);
+  color: var(--gold-2);
+  background: radial-gradient(circle at 38% 32%, rgba(201, 162, 39, .22), transparent 68%);
+  box-shadow: 0 0 24px rgba(201, 162, 39, .16);
+}
+.coin--yin {
+  border-color: rgba(232, 220, 200, .22);
+  color: var(--dim);
+  background: radial-gradient(circle at 38% 32%, rgba(232, 220, 200, .06), transparent 68%);
+}
+
+@keyframes coinLand {
+  0%   { transform: translateY(-26px) rotateY(0deg)   scale(.85); opacity: 0; }
+  60%  { transform: translateY(3px)   rotateY(540deg) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0)     rotateY(720deg) scale(1);    opacity: 1; }
+}
+
+/* 擲完一爻，讓手停一下。純 CSS，靠 renderUI 重建元素重啟動畫 */
+.btn.btn-toss { animation: recover 1000ms var(--ease) both; }
+
+@keyframes recover {
+  0%, 68%  { pointer-events: none; opacity: .22; border-color: var(--line); }
+  100%     { pointer-events: auto; opacity: 1;   border-color: var(--gold-dim); }
+}
+
+.toss-count {
+  text-align: center;
+  font-size: .78rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: var(--dimmer);
+  margin-bottom: 1.8rem;
+}
+
+/* --- 卦牌 ---------------------------------------------------------------- */
+.gua-pair {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+  margin: 2rem 0;
+}
+@media (min-width: 620px) {
+  .gua-pair.is-two { grid-template-columns: 1fr 1fr; }
+}
+
+.guacard {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(232, 220, 200, .035), transparent);
+  padding: 1.6rem 1.4rem 1.4rem;
+  position: relative;
+}
+
+.guacard__tag {
+  position: absolute;
+  top: -.62rem; left: 1.2rem;
+  background: var(--ink-0);
+  padding: 0 .6rem;
+  font-size: .68rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: var(--dimmer);
+}
+
+.guacard--cinnabar { border-color: rgba(178, 53, 44, .28); }
+.guacard--cinnabar .guacard__tag { color: var(--cinnabar-2); }
+
+.guacard .hexagram { gap: .62rem; margin-bottom: 1.3rem; }
+
+.guacard__name { text-align: center; }
+.guacard__no {
+  display: block;
+  font-size: .68rem;
+  letter-spacing: .28em;
+  text-indent: .28em;
+  color: var(--dimmer);
+  margin-bottom: .5rem;
+}
+.guacard__full {
+  font-size: 1.72rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  color: var(--gold-2);
+}
+.guacard--cinnabar .guacard__full { color: var(--cinnabar-2); }
+.guacard__tri {
+  font-size: .74rem;
+  letter-spacing: .14em;
+  color: var(--dim);
+  margin-top: .55rem;
+}
+
+.guacard__tuan {
+  margin-top: 1.3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+.guacard__tuan .label {
+  font-size: .66rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: var(--dimmer);
+  margin-bottom: .5rem;
+}
+.guacard__tuan .text {
+  font-size: .92rem;
+  color: var(--paper-2);
+  line-height: 2.1;
+}
+.guacard__tuan .gist {
+  font-size: .8rem;
+  color: var(--dim);
+  margin-top: .5rem;
+}
+
+/* --- 硃砂印 -------------------------------------------------------------- */
+.seal {
+  display: flex;
+  justify-content: center;
+  margin: 1.4rem 0 2rem;
+}
+.seal > span {
+  border: 2px solid var(--cinnabar);
+  color: var(--cinnabar-2);
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  padding: .7rem 1rem;
+  line-height: 1.5;
+  writing-mode: vertical-rl;
+  background: rgba(178, 53, 44, .07);
+  animation: stamp 900ms var(--ease) backwards;
+}
+
+@keyframes stamp {
+  0%   { transform: scale(1.7) rotate(-7deg); opacity: 0; filter: blur(4px); }
+  55%  { transform: scale(.96) rotate(1.5deg); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+}
+
+/* --- 斷卦法 -------------------------------------------------------------- */
+.rule {
+  border-left: 2px solid var(--gold-dim);
+  padding: .3rem 0 .3rem 1.2rem;
+  margin: 2rem 0;
+}
+.rule__head {
+  font-size: .74rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: var(--gold);
+  margin-bottom: .55rem;
+}
+.rule__body { font-size: .9rem; color: var(--paper-2); line-height: 2.1; }
+.rule__focus { font-size: .8rem; color: var(--dim); margin-top: .5rem; }
+
+/* --- 沉吟中 -------------------------------------------------------------- */
+.pondering {
+  text-align: center;
+  padding: 4rem 0 3rem;
+  animation: inkIn 800ms var(--ease) backwards;
+}
+
+.smoke {
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: .5rem;
+  margin-bottom: 2rem;
+}
+.smoke > span {
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to top, rgba(201, 162, 39, .42), transparent 72%);
+  animation: rise 4.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+.smoke > span:nth-child(2) { animation-delay: -1.4s; }
+.smoke > span:nth-child(3) { animation-delay: -2.8s; }
+
+@keyframes rise {
+  0%   { opacity: 0;  transform: translateY(14px) scaleY(.65) skewX(0deg); }
+  40%  { opacity: .9; }
+  100% { opacity: 0;  transform: translateY(-16px) scaleY(1.15) skewX(11deg); }
+}
+
+/* 沉吟的話語自己輪替，純 CSS，不動用 JS */
+.pondering__lines {
+  position: relative;
+  height: 2.4em;
+  font-size: .95rem;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  color: var(--paper-2);
+}
+.pondering__lines > span {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: cycleLine 20s linear infinite;
+}
+.pondering__lines > span:nth-child(1) { animation-delay:  0s; }
+.pondering__lines > span:nth-child(2) { animation-delay:  4s; }
+.pondering__lines > span:nth-child(3) { animation-delay:  8s; }
+.pondering__lines > span:nth-child(4) { animation-delay: 12s; }
+.pondering__lines > span:nth-child(5) { animation-delay: 16s; }
+
+@keyframes cycleLine {
+  0%,  1%  { opacity: 0; transform: translateY(7px); }
+  5%, 17%  { opacity: 1; transform: none; }
+  21%,100% { opacity: 0; transform: translateY(-7px); }
+}
+
+/* 動畫關掉時只留第一句，不然整段會是空的 */
+@media (prefers-reduced-motion: reduce) {
+  .pondering__lines > span { opacity: 0; }
+  .pondering__lines > span:nth-child(1) { opacity: 1; }
+}
+
+/* --- 籤解（全場唯一的宣紙） ---------------------------------------------- */
+.reading {
+  background:
+    linear-gradient(180deg, #EDE2CF, #DFD2B9);
+  color: #241C15;
+  padding: 2.8rem 2rem 2.4rem;
+  margin: 2.4rem 0 1rem;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+  animation: unroll 1500ms var(--ease) backwards;
+  font-weight: 400;
+}
+
+@keyframes unroll {
+  from { clip-path: inset(0 0 100% 0); opacity: .2; }
+  to   { clip-path: inset(0 0 0 0);    opacity: 1; }
+}
+
+.reading .block + .block {
+  margin-top: 2rem;
+  padding-top: 1.7rem;
+  border-top: 1px solid rgba(36, 28, 21, .14);
+}
+
+.reading .block__head {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .38em;
+  text-indent: .38em;
+  color: #8A6B22;
+  margin-bottom: .9rem;
+}
+
+.reading .block__body p {
+  margin: 0 0 .9rem;
+  font-size: 1.02rem;
+  line-height: 2.25;
+  letter-spacing: .045em;
+}
+.reading .block__body p:last-child { margin-bottom: 0; }
+
+/* 打個比方：籤紙上壓一塊淡色，像貼了張小箋，讓例子跟斷語分得開 */
+.reading .block--example {
+  background: rgba(138, 107, 34, .07);
+  border-left: 2px solid rgba(138, 107, 34, .3);
+  margin-left: -.6rem;
+  padding: 1.5rem 1.2rem 1.2rem;
+  border-top: none;
+}
+.reading .block--example .block__body p {
+  font-size: .98rem;
+  color: #3B2E22;
+}
+
+.reading .block--line { border-top-color: rgba(178, 53, 44, .3); }
+.reading .block--line .block__head { color: var(--cinnabar); }
+.reading .block--line .block__body p {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 2.1;
+  color: #6B1F19;
+  border-left: 3px solid var(--cinnabar);
+  padding-left: 1.1rem;
+}
+
+.reading__body p { margin: 0 0 1rem; line-height: 2.25; }
+
+/* 落款：蓋在籤紙內側，深字 */
+.reading__stamp {
+  text-align: right;
+  font-size: .7rem;
+  letter-spacing: .24em;
+  color: rgba(36, 28, 21, .45);
+  margin-top: 2.2rem;
+}
+
+/* --- 提醒 ---------------------------------------------------------------- */
+.omen {
+  border: 1px solid rgba(178, 53, 44, .35);
+  background: rgba(178, 53, 44, .07);
+  padding: 1.2rem 1.3rem;
+  margin: 1.6rem 0;
+  font-size: .88rem;
+  line-height: 2.05;
+  color: #E8C3BE;
+}
+.omen strong { color: var(--cinnabar-2); font-weight: 600; }
+
+.notice {
+  border: 1px solid var(--line-2);
+  padding: 1.1rem 1.2rem;
+  margin: 1.6rem 0;
+  font-size: .86rem;
+  line-height: 2;
+  color: var(--dim);
+}
+
+/* --- 收尾 ---------------------------------------------------------------- */
+.colophon {
+  text-align: center;
+  margin-top: 4rem;
+  font-size: .7rem;
+  letter-spacing: .24em;
+  text-indent: .24em;
+  color: #4A423A;
+  line-height: 2.2;
+}
+
+/* --- 無障礙 -------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* 直接 animation:none，而不是把時間壓到 .01ms —— 動畫時間軸若沒在跑
+     （分頁在背景、瀏覽器節流），壓時間的做法會把元素凍在 0% 那格，
+     卦象就整個看不見了。none 則直接落回元素本身可見的樣式。 */
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+  .reading { clip-path: none; }
+  .pondering__lines > span:nth-child(1) { opacity: 1; }
+}
+
+/* 字距在極窄螢幕會撐爆版面，收一點 */
+@media (max-width: 380px) {
+  .brand__name { letter-spacing: .22em; text-indent: .22em; }
+  .brand__tag  { letter-spacing: .3em;  text-indent: .3em; }
+  .btn.btn-rite { letter-spacing: .2em; text-indent: .2em; }
+  .yao         { grid-template-columns: 2.6rem 1fr 1.2rem; }
+}
