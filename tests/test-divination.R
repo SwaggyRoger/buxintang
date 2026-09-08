@@ -164,7 +164,63 @@ cat("\n== 12. 離線籤解 ==\n")
 off <- offline_reading(dv, "要不要辭掉現在的工作？")
 chk(grepl("【籤解】", off) && grepl("【啟】", off), "離線籤解格式完整")
 
-cat("\n== 13. 完整 UI 物件 ==\n")
+cat("\n== 13. 爻辭表 ==\n")
+chk(nrow(YAOCI) == 386L, sprintf("386 條（384 爻 + 用九 + 用六），實得 %d", nrow(YAOCI)))
+chk(all(table(YAOCI$name[!YAOCI$title %in% c("用九","用六")]) == 6L), "每卦皆足六爻")
+chk(setequal(YAOCI$name, HEXAGRAMS$name), "卦名與六十四卦表完全一致")
+chk(all(nchar(YAOCI$text) > 1L), "沒有空的爻辭")
+chk(identical(lookup_text("乾", "初九"), "潛龍勿用。"), "乾初九")
+chk(identical(lookup_text("坤", "用六"), "利永貞。"), "坤用六")
+chk(grepl("^不遠復", lookup_text("復", "初九")),
+    sprintf("復初九為「不遠復」而非倒字（得 %s）", lookup_text("復", "初九")))
+chk(is.na(lookup_text("乾", "六二")), "乾沒有六二，查無回 NA")
+chk(!any(grepl("[云几觌涂瓮窥牀]", YAOCI$text)), "無簡體殘留字")
+
+cat("\n== 14. 變占法：每一種動爻組合都要查得到經文 ==\n")
+bad <- character(0)
+set.seed(20260908)
+for (trial in 1:400) {
+  v <- sample(6:9, 6, replace = TRUE)
+  d <- build_divination(v)
+  for (ct in d$rule$cite) {
+    txt <- lookup_text(ct$hex, ct$part)
+    if (is.na(txt) || !nzchar(txt)) bad <- c(bad, sprintf("%s・%s", ct$hex, ct$part))
+  }
+  if (!is.logical(d$rule$zhi_matters)) bad <- c(bad, "zhi_matters 非邏輯值")
+}
+chk(length(bad) == 0,
+    if (length(bad)) paste("查不到經文：", paste(unique(bad), collapse = ", "))
+    else "400 次隨機起卦，所有引用的經文都查得到")
+
+cat("\n== 15. 變占規則細節 ==\n")
+d <- build_divination(c(9L, 8L, 8L, 8L, 8L, 8L))
+chk(d$rule$n == 1L && isFALSE(d$rule$zhi_matters), "一爻變：之卦不必理會")
+d <- build_divination(c(9L, 9L, 8L, 8L, 8L, 8L))
+chk(grepl("下爻", d$rule$detail) && grepl("貞", d$rule$detail),
+    "二爻變：下爻為貞（主）、上爻為悔")
+chk(length(d$rule$cite) == 2L &&
+    all(vapply(d$rule$cite, function(ct) ct$hex, "") == d$ben$name),
+    "二爻變：兩條依據都在本卦")
+d <- build_divination(c(9L, 9L, 9L, 9L, 8L, 8L))
+chk(d$rule$cite[[1]]$hex == d$zhi$name && d$rule$cite[[1]]$part == "卦辭",
+    "四爻變：以之卦卦辭為貞（主）")
+d <- build_divination(c(9L, 9L, 9L, 9L, 9L, 8L))
+chk(d$rule$cite[[1]]$hex == d$zhi$name, "五爻變：同樣以之卦為貞")
+chk(identical(zhuxi_rule, divination_rule), "舊名 zhuxi_rule 仍可用")
+
+cat("\n== 16. 卦單附上經文 ==\n")
+d <- build_divination(c(9L, 8L, 7L, 6L, 8L, 7L))
+b <- format_hexagram_brief(d, "測試", cast_stamp(), 1L)
+chk(grepl("【所斷經文】", b), "卦單含【所斷經文】區塊")
+for (ct in d$rule$cite)
+  chk(grepl(lookup_text(ct$hex, ct$part), b, fixed = TRUE),
+      sprintf("卦單內含《%s》%s 的原文", ct$hex, ct$part))
+chk(grepl("不要改寫", b), "卦單明示經文不得改寫")
+chk(grepl("一字不改", SYSTEM_PROMPT) && grepl("憑印象", SYSTEM_PROMPT) &&
+    grepl("所斷經文", SYSTEM_PROMPT),
+    "提示詞要求照卦單的【所斷經文】一字不改地引，不得憑印象補")
+
+cat("\n== 17. 完整 UI 物件 ==\n")
 render_ok("page_fluid", ui)
 
 nf <- get0("N_FAIL", ifnotfound = 0)

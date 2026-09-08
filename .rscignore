@@ -1,6 +1,7 @@
 _archive
 deploy.R
 tests
+tools
 .Renviron.example
 README.md
 README.zh-TW.md
