@@ -59,86 +59,93 @@ build_divination <- function(values) {
     zhi     = zhi,
     hu      = hu,
     moving  = moving,
-    rule    = zhuxi_rule(ben, zhi, moving)
+    rule    = divination_rule(ben, zhi, moving)
   )
 }
 
-#' 朱熹《易學啟蒙》變占法：依動爻數決定該用哪段經文斷卦
-zhuxi_rule <- function(ben, zhi, moving) {
+#' 變占法：依動爻數決定該用哪段經文斷卦。
+#'
+#' 採《易經543》所整理、以《左傳》《國語》春秋筮例為據的一套規則。
+#' 它與朱熹《易學啟蒙》相近但不相同，差別在二、四、五爻變三處：
+#'   二爻變 朱熹以上爻為主；此處作下爻為貞（主）、上爻為悔。
+#'   四、五爻變 朱熹取之卦的不變爻；此處改在整卦層級論貞悔，以變卦為貞。
+#' 另一個要點：一爻變時，之卦完全不必理會（見 zhi_matters）。
+divination_rule <- function(ben, zhi, moving) {
   n <- length(moving)
   ttl <- function(hex, pos) yao_title(pos, hex$lines[pos] == 1L)
 
   if (n == 0L) {
     return(list(
-      n = 0L,
-      headline = "六爻不變",
-      detail = sprintf("以本卦《%s》卦辭斷之。", ben$name),
-      focus  = sprintf("%s卦辭", ben$name)
+      n = 0L, headline = "六爻不變", zhi_matters = FALSE,
+      detail = sprintf("以本卦《%s》的卦辭與卦義斷之。", ben$name),
+      focus  = sprintf("%s卦辭", ben$name),
+      cite   = list(list(hex = ben$name, part = "卦辭"))
     ))
   }
   if (n == 1L) {
     p <- moving[1]
     return(list(
-      n = 1L,
-      headline = "一爻變",
-      detail = sprintf("以本卦《%s》變爻「%s」之爻辭斷之。", ben$name, ttl(ben, p)),
-      focus  = sprintf("%s・%s", ben$name, ttl(ben, p))
+      n = 1L, headline = "一爻變", zhi_matters = FALSE,
+      detail = sprintf(paste0("以本卦《%s》變爻「%s」的爻辭斷之。",
+                              "一爻變時之卦不必理會，爻仍要放在本卦的脈絡下看。"),
+                       ben$name, ttl(ben, p)),
+      focus  = sprintf("%s・%s", ben$name, ttl(ben, p)),
+      cite   = list(list(hex = ben$name, part = ttl(ben, p)))
     ))
   }
   if (n == 2L) {
     lo <- moving[1]; hi <- moving[2]
     return(list(
-      n = 2L,
-      headline = "二爻變",
-      detail = sprintf("以本卦《%s》兩變爻「%s」「%s」之爻辭斷之，以上爻「%s」為主。",
-                       ben$name, ttl(ben, lo), ttl(ben, hi), ttl(ben, hi)),
-      focus  = sprintf("%s・%s（主）、%s", ben$name, ttl(ben, hi), ttl(ben, lo))
+      n = 2L, headline = "二爻變", zhi_matters = FALSE,
+      detail = sprintf(paste0("以本卦《%s》兩變爻的爻辭斷之：",
+                              "下爻「%s」為貞（定、正，是主），上爻「%s」為悔（動、改過）。"),
+                       ben$name, ttl(ben, lo), ttl(ben, hi)),
+      focus  = sprintf("%s・%s（貞．主）、%s（悔）", ben$name, ttl(ben, lo), ttl(ben, hi)),
+      cite   = list(list(hex = ben$name, part = ttl(ben, lo)),
+                    list(hex = ben$name, part = ttl(ben, hi)))
     ))
   }
   if (n == 3L) {
     return(list(
-      n = 3L,
-      headline = "三爻變",
-      detail = sprintf("以本卦《%s》與之卦《%s》兩卦辭參斷，本卦為貞（主），之卦為悔（次）。",
+      n = 3L, headline = "三爻變", zhi_matters = TRUE,
+      detail = sprintf("以本卦《%s》與之卦《%s》的卦辭參斷，本卦為貞（主），之卦為悔。",
                        ben$name, zhi$name),
-      focus  = sprintf("%s卦辭（貞）＋%s卦辭（悔）", ben$name, zhi$name)
+      focus  = sprintf("%s卦辭（貞）＋%s卦辭（悔）", ben$name, zhi$name),
+      cite   = list(list(hex = ben$name, part = "卦辭"),
+                    list(hex = zhi$name, part = "卦辭"))
     ))
   }
-  if (n == 4L) {
-    still <- setdiff(1:6, moving)          # 之卦中的兩個不變爻
-    lo <- still[1]; hi <- still[2]
+  if (n %in% c(4L, 5L)) {
     return(list(
-      n = 4L,
-      headline = "四爻變",
-      detail = sprintf("以之卦《%s》兩不變爻「%s」「%s」之爻辭斷之，以下爻「%s」為主。",
-                       zhi$name, ttl(zhi, lo), ttl(zhi, hi), ttl(zhi, lo)),
-      focus  = sprintf("%s・%s（主）、%s", zhi$name, ttl(zhi, lo), ttl(zhi, hi))
-    ))
-  }
-  if (n == 5L) {
-    p <- setdiff(1:6, moving)[1]
-    return(list(
-      n = 5L,
-      headline = "五爻變",
-      detail = sprintf("以之卦《%s》唯一不變爻「%s」之爻辭斷之。", zhi$name, ttl(zhi, p)),
-      focus  = sprintf("%s・%s", zhi$name, ttl(zhi, p))
+      n = n, headline = sprintf("%s爻變", c("四", "五")[n - 3L]), zhi_matters = TRUE,
+      detail = sprintf("變爻已多，爻不再起作用，改看卦：以之卦《%s》為貞（主），本卦《%s》為悔。",
+                       zhi$name, ben$name),
+      focus  = sprintf("%s卦辭（貞）＋%s卦辭（悔）", zhi$name, ben$name),
+      cite   = list(list(hex = zhi$name, part = "卦辭"),
+                    list(hex = ben$name, part = "卦辭"))
     ))
   }
   # n == 6
   if (ben$name == "乾") {
-    return(list(n = 6L, headline = "六爻皆變",
-                detail = "乾之六爻皆變，用「用九：見群龍无首，吉」斷之。",
-                focus = "乾・用九"))
+    return(list(n = 6L, headline = "六爻皆變", zhi_matters = FALSE,
+                detail = "乾之六爻皆變，用「用九」之辭斷之。",
+                focus = "乾・用九",
+                cite = list(list(hex = "乾", part = "用九"))))
   }
   if (ben$name == "坤") {
-    return(list(n = 6L, headline = "六爻皆變",
-                detail = "坤之六爻皆變，用「用六：利永貞」斷之。",
-                focus = "坤・用六"))
+    return(list(n = 6L, headline = "六爻皆變", zhi_matters = FALSE,
+                detail = "坤之六爻皆變，用「用六」之辭斷之。",
+                focus = "坤・用六",
+                cite = list(list(hex = "坤", part = "用六"))))
   }
-  list(n = 6L, headline = "六爻皆變",
-       detail = sprintf("六爻盡變，以之卦《%s》卦辭斷之。", zhi$name),
-       focus  = sprintf("%s卦辭", zhi$name))
+  list(n = 6L, headline = "六爻皆變", zhi_matters = TRUE,
+       detail = sprintf("六爻盡變，以之卦《%s》的卦辭與卦義斷之。", zhi$name),
+       focus  = sprintf("%s卦辭", zhi$name),
+       cite   = list(list(hex = zhi$name, part = "卦辭")))
 }
+
+# 舊名保留為別名，免得外部引用斷掉
+zhuxi_rule <- divination_rule
 
 # --- 時辰 ------------------------------------------------------------------
 SHICHEN <- c("子", "丑", "寅", "卯", "辰", "巳",

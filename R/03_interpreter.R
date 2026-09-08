@@ -64,8 +64,10 @@ SYSTEM_PROMPT <- paste(
   "",
   "斷卦規矩（重要）：",
   "・卦名、上下卦、動爻、之卦、斷卦法都已算好給你，直接採用，不要自行改判。",
-  "・依「斷卦法」指定的那段經文為主軸。經文若記不真切，寧可從卦象本身",
-  "　（上下卦之象、動爻所在的位置與時勢）去講，也不要編造經文。",
+  "・卦單上的【所斷經文】是查表附上的原文。要引經文就引那幾句，",
+  "　一字不改，也不要憑印象補上別的爻辭——你記得的版本未必對。",
+  "・那幾句以外的經文，寧可不引，改從卦象本身講（上下卦之象、動爻的位置與時勢）。",
+  "・卦單若註明「之卦僅供參看」，就不要拿之卦當主要判斷依據。",
   "・卦有吉凶，但吉凶看的是「時」與「位」，不是命定。要說出他此刻站在哪一步。",
   "",
   "回覆格式（純文字，四段小標一個都不能少，不要 markdown 符號、不要條列）：",
@@ -115,6 +117,18 @@ format_hexagram_brief <- function(dv, question, stamp, nth_ask = 1L) {
     sprintf("\n【備註】這是他就同一件事第 %d 次起卦。《蒙》曰「初筮告，再三瀆」，\n　　　　他心裡不安、想要一個不一樣的答案。這件事值得你點他一句。", nth_ask)
   } else ""
 
+  # 該斷的那幾段經文直接附上原文，模型不必自己回想，也就不會記錯
+  cite_txt <- paste(vapply(dv$rule$cite, function(c) {
+    sprintf("　《%s》%s：%s", c$hex, c$part,
+            lookup_text(c$hex, c$part) %||% "（本表未收）")
+  }, character(1)), collapse = "\n")
+
+  zhi_note <- if (isTRUE(dv$rule$zhi_matters)) {
+    ""
+  } else {
+    "\n　（此局之卦僅供參看，不作主要判斷依據）"
+  }
+
   paste0(
     "【所問】", question, "\n",
     "【起卦】", stamp, "　三枚銅錢，六擲成卦（由初爻至上爻）\n",
@@ -124,8 +138,9 @@ format_hexagram_brief <- function(dv, question, stamp, nth_ask = 1L) {
     "【動爻】", moving_txt, "\n",
     if (!is.null(dv$zhi)) paste0(hex_block("之卦", dv$zhi), "\n") else "",
     hex_block("互卦", dv$hu), "　（互卦看事情的中段與內情）\n",
-    "【斷卦法】", dv$rule$headline, "——", dv$rule$detail, "\n",
-    "　主要依據：", dv$rule$focus,
+    "【斷卦法】", dv$rule$headline, "——", dv$rule$detail, zhi_note, "\n",
+    "【所斷經文】（以下為原文，請直接引用，不要改寫）\n",
+    cite_txt,
     nth_note
   )
 }
