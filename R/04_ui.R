@@ -30,7 +30,7 @@ head_assets <- function() {
     htmltools::tags$link(
       rel  = "stylesheet",
       href = paste0("https://fonts.googleapis.com/css2",
-                    "?family=Noto+Serif+TC:wght@300;400;600;900",
+                    "?family=Noto+Serif+TC:wght@400;500;600;900",
                     "&display=swap")
     ),
     htmltools::tags$link(rel = "stylesheet", href = "styles.css"),
