@@ -10,9 +10,9 @@ buxin_theme <- function() {
   bslib::bs_theme(
     version   = 5,
     bg        = "#0B0908",
-    fg        = "#E8DCC8",
+    fg        = "#FFFFFF",
     primary   = "#C9A227",
-    secondary = "#A99C86",
+    secondary = "#C4C4C4",
     base_font = bslib::font_collection(
       "Noto Serif TC", "Songti TC", "PMingLiU", "serif"
     ),
@@ -115,6 +115,16 @@ hexagram_card <- function(hex, yao_list, tag, accent = "gold", show_tuan = TRUE)
   )
 }
 
+#' 龜殼。casting = TRUE 時播「搖三下、往左傾倒」的動畫；
+#' 因為每擲一次 renderUI 會重建這個節點，動畫自然重播。
+shell_html <- function(casting = FALSE) {
+  htmltools::div(
+    class = paste0("shell", if (casting) " is-casting"),
+    htmltools::div(class = "shell__dome"),
+    htmltools::div(class = "shell__rim")
+  )
+}
+
 #' 三枚銅錢（字為陽，背為陰）
 coins_html <- function(coins = NULL) {
   faces <- if (is.null(coins)) rep(NA_integer_, 3L) else coins
@@ -134,6 +144,19 @@ coins_html <- function(coins = NULL) {
 }
 
 # --- 小元件 ----------------------------------------------------------------
+
+#' 一支蠟燭。burn 0 = 全新、1 = 燒盡；擲卦時隨爻數往下燒，
+#' 所以它同時是進度，不只是裝飾。
+candle <- function(burn = 0, small = FALSE) {
+  htmltools::div(
+    class = paste0("candle", if (small) " candle--sm"),
+    style = sprintf("--burn:%.3f", max(0, min(1, burn))),
+    htmltools::div(class = "candle__flame"),
+    htmltools::div(class = "candle__wick"),
+    htmltools::div(class = "candle__wax"),
+    htmltools::div(class = "candle__base")
+  )
+}
 
 ember    <- function() htmltools::div(class = "ember", htmltools::div(class = "ember__glow"))
 seal     <- function(text) htmltools::div(class = "seal", htmltools::span(text))

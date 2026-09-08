@@ -159,7 +159,7 @@ server <- function(input, output, session) {
 view_threshold <- function() {
   htmltools::div(
     class = "stage",
-    ember(),
+    htmltools::div(class = "ember", candle()),
     htmltools::div(
       class = "brand",
       htmltools::h1(class = "brand__name", APP_NAME),
@@ -223,8 +223,10 @@ view_casting <- function(vals) {
   htmltools::div(
     class = "stage",
     asked_block(vals),
+    htmltools::div(class = "altar", candle(burn = n / 6 * 0.66, small = TRUE)),
     if (vals$nth == 2L) re_ask_omen(),
     hexagram_lines(yao, show_title = TRUE),
+    shell_html(casting = n > 0L),   # 第一次進來還沒擲，殼不動
     coins_html(last),
     htmltools::div(class = "toss-count",
                    sprintf("第 %s 擲・共六擲",
@@ -244,6 +246,7 @@ view_formed <- function(vals) {
   htmltools::div(
     class = "stage",
     asked_block(vals),
+    htmltools::div(class = "altar", candle(burn = 0.66, small = TRUE)),
     seal(paste0(dv$ben$full, "　", if (is.null(dv$zhi)) "六爻不變" else paste0("之　", dv$zhi$full))),
     htmltools::div(
       class = paste0("gua-pair", if (!is.null(dv$zhi)) " is-two" else ""),
@@ -335,8 +338,12 @@ view_pondering <- function() {
   # 四十句以上足以撐過任何一次等待而不重複。
   htmltools::div(
     class = "stage pondering",
-    htmltools::div(class = "smoke",
-                   htmltools::span(), htmltools::span(), htmltools::span()),
+    htmltools::div(
+      class = "pondering__altar",
+      htmltools::div(class = "smoke",
+                     htmltools::span(), htmltools::span(), htmltools::span()),
+      candle(burn = 0.7, small = TRUE)
+    ),
     htmltools::div(
       class = "pondering__lines",
       lapply(sample(PONDERING_LINES), htmltools::span)
@@ -370,7 +377,7 @@ view_read <- function(vals) {
 view_refused <- function(vals) {
   htmltools::div(
     class = "stage",
-    ember(),
+    htmltools::div(class = "ember", candle(burn = 0.9)),
     htmltools::div(class = "asked",
                    htmltools::div(class = "asked__label", "所問"),
                    htmltools::div(class = "asked__text", vals$question)),

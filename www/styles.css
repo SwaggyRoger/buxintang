@@ -9,13 +9,13 @@
   --ink-1: #14100E;
   --ink-2: #1C1614;
   --ink-3: #2A2220;
-  --line:  rgba(232, 220, 200, .10);
-  --line-2: rgba(232, 220, 200, .18);
+  --line:  rgba(255, 255, 255, .12);
+  --line-2: rgba(255, 255, 255, .22);
 
-  --paper:   #EFE5D2;
-  --paper-2: #D6CAB2;
-  --dim:     #A0947F;
-  --dimmer:  #8A7E6C;
+  --paper:   #FFFFFF;   /* 主要文字 */
+  --paper-2: #E6E6E6;   /* 次要文字：卦辭、旁白 */
+  --dim:     #C4C4C4;   /* 說明文字 */
+  --dimmer:  #ABABAB;   /* 標籤、落款 */
 
   --gold:    #C9A227;
   --gold-2:  #E3C878;
@@ -140,6 +140,96 @@ body::after {
   68%      { opacity: .84; transform: translateY(-1px)   scale(.96); }
 }
 
+/* --- 蠟燭 ---------------------------------------------------------------- */
+/* --burn 由 R 傳進來：0 = 全新，1 = 燒盡。擲卦時隨爻數往下燒，
+   所以它同時是進度指示，不只是裝飾。 */
+.candle {
+  --wax-max: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.candle--sm { --wax-max: 42px; }
+
+.candle__flame {
+  position: relative;
+  width: 11px;
+  height: 20px;
+  margin-bottom: 4px;
+  border-radius: 50% 50% 26% 26% / 64% 64% 36% 36%;
+  background: linear-gradient(to top, #F2A93B, #FFD98A 44%, #FFF6DE);
+  box-shadow:
+    0 0 12px 3px rgba(255, 190, 90, .55),
+    0 0 34px 12px rgba(201, 162, 39, .34),
+    0 0 78px 30px rgba(178, 53, 44, .14);
+  transform-origin: 50% 100%;
+  animation: flame 2.8s ease-in-out infinite;
+}
+
+/* 焰心 */
+.candle__flame::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 4px;
+  height: 9px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
+  background: rgba(255, 255, 255, .88);
+  filter: blur(.4px);
+}
+
+@keyframes flame {
+  0%, 100% { transform: scale(1)         skewX(0deg);    opacity: 1; }
+  20%      { transform: scale(.92, 1.09) skewX(-4deg);   opacity: .88; }
+  45%      { transform: scale(1.06, .94) skewX(3deg);    opacity: 1; }
+  70%      { transform: scale(.97, 1.04) skewX(-2deg);   opacity: .94; }
+}
+
+.candle__wick {
+  width: 2px;
+  height: 5px;
+  border-radius: 1px;
+  background: #3A302A;
+}
+
+.candle__wax {
+  width: 26px;
+  min-height: 9px;
+  height: calc(var(--wax-max) * (1 - var(--burn, 0)));
+  border-radius: 3px 3px 2px 2px;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.3), transparent 30%,
+                    rgba(255,255,255,.18) 50%, transparent 70%, rgba(0,0,0,.32)),
+    linear-gradient(to bottom, #F5EEE0, #D8CEB9);
+  box-shadow: 0 -7px 20px rgba(255, 190, 90, .28);
+  transition: height 760ms var(--ease);
+}
+.candle--sm .candle__wax { width: 18px; }
+
+/* 燭光落在檯面上的一圈 */
+.candle__base {
+  width: 44px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .1);
+  box-shadow: 0 0 24px 9px rgba(201, 162, 39, .17);
+}
+.candle--sm .candle__base { width: 32px; }
+
+/* 擲卦頁的燭台 */
+.altar { margin: 0 0 2.4rem; }
+
+/* 沉吟頁：香煙從燭火上方升起 */
+.pondering__altar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.2rem;
+}
+
 /* --- 通用文字 ------------------------------------------------------------ */
 .quiet {
   color: var(--dimmer);
@@ -189,7 +279,7 @@ body::after {
 .ask-field { margin: 0 0 1.2rem; }
 
 .ask-field textarea.form-control {
-  background: rgba(232, 220, 200, .045);
+  background: rgba(255, 255, 255, .05);
   border: 1px solid var(--line-2);
   border-radius: 2px;
   color: var(--paper);
@@ -203,7 +293,7 @@ body::after {
 }
 .ask-field textarea.form-control::placeholder { color: var(--dimmer); }
 .ask-field textarea.form-control:focus {
-  background: rgba(232, 220, 200, .07);
+  background: rgba(255, 255, 255, .08);
   border-color: var(--gold-dim);
   box-shadow: 0 0 0 1px var(--gold-dim), 0 0 30px rgba(201, 162, 39, .10) inset;
   outline: none;
@@ -314,7 +404,7 @@ body::after {
              pulse 3.6s ease-in-out 1.2s infinite;
 }
 .yao.is-moving .yao__mark { color: var(--cinnabar-2); }
-.yao.is-moving .yao__title { color: var(--cinnabar-2); }
+.yao.is-moving .yao__title { color: var(--paper); }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -324,10 +414,74 @@ body::after {
 /* 未擲之爻 */
 .yao--pending .yao__glyph > i {
   background: none;
-  border-top: 1px dashed rgba(232, 220, 200, .16);
+  border-top: 1px dashed rgba(255, 255, 255, .2);
   height: 0;
   align-self: center;
   animation: none;
+}
+
+/* --- 龜殼 ---------------------------------------------------------------- */
+/* 金錢卦本來就是把三枚錢放進龜殼裡搖，再倒出來。
+   殼先晃三下，然後往左傾倒，錢才落下（見 .coin 的 animation-delay）。 */
+.shell {
+  width: 98px;
+  height: 62px;
+  position: relative;
+  margin: 2.2rem auto .2rem;
+  transform-origin: 50% 92%;
+}
+.shell.is-casting { animation: shellCast 620ms var(--ease); }
+
+.shell__dome {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50% 50% 40% 40% / 68% 68% 32% 32%;
+  background:
+    radial-gradient(58% 66% at 38% 22%, rgba(255, 216, 150, .26), transparent 62%),
+    linear-gradient(to bottom, #6E5637, #3A2C1D);
+  box-shadow:
+    inset 0 -7px 14px rgba(0, 0, 0, .55),
+    inset 0 3px 6px rgba(255, 220, 160, .12),
+    0 9px 24px rgba(0, 0, 0, .5);
+}
+
+/* 龜甲的分片 */
+.shell__dome::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* 中央一列脊甲，兩側各一列肋甲，橫向兩道分節 */
+  background:
+    linear-gradient(90deg,
+      transparent 25%,  rgba(0,0,0,.5) 25.6%, rgba(0,0,0,.5) 26.6%, transparent 27.2%,
+      transparent 48.6%, rgba(0,0,0,.55) 49.3%, rgba(0,0,0,.55) 50.7%, transparent 51.4%,
+      transparent 72.8%, rgba(0,0,0,.5) 73.4%, rgba(0,0,0,.5) 74.4%, transparent 75%),
+    linear-gradient(180deg,
+      transparent 32%, rgba(0,0,0,.4) 32.8%, rgba(0,0,0,.4) 34%, transparent 34.8%,
+      transparent 62%, rgba(0,0,0,.4) 62.8%, rgba(0,0,0,.4) 64%, transparent 64.8%),
+    radial-gradient(70% 80% at 50% 8%, rgba(255,220,160,.14), transparent 60%);
+}
+
+/* 殼緣 */
+.shell__rim {
+  position: absolute;
+  left: -5px; right: -5px; bottom: -2px;
+  height: 11px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #7E6342, #453320);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .55);
+}
+
+@keyframes shellCast {
+  0%   { transform: rotate(0deg)   translate(0, 0); }
+  10%  { transform: rotate(-9deg)  translate(-2px, -3px); }
+  22%  { transform: rotate(8deg)   translate(2px, 1px); }
+  34%  { transform: rotate(-7deg)  translate(-2px, -2px); }
+  46%  { transform: rotate(6deg)   translate(1px, 0); }
+  62%  { transform: rotate(-32deg) translate(-7px, 2px); }   /* 傾倒 */
+  80%  { transform: rotate(-8deg)  translate(-2px, 0); }
+  100% { transform: rotate(0deg)   translate(0, 0); }
 }
 
 /* --- 銅錢 ---------------------------------------------------------------- */
@@ -335,7 +489,7 @@ body::after {
   display: flex;
   justify-content: center;
   gap: 1.1rem;
-  margin: 2.2rem 0 1.8rem;
+  margin: .6rem 0 1.8rem;
   min-height: 58px;
   align-items: center;
 }
@@ -351,7 +505,7 @@ body::after {
   color: var(--dimmer);
   position: relative;
   animation: coinLand 400ms var(--ease) backwards;
-  animation-delay: calc(var(--c, 0) * 80ms);
+  animation-delay: calc(330ms + var(--c, 0) * 80ms);
 }
 
 /* 中央方孔。字要壓在孔上，所以孔畫淡一點，字自帶底色把孔切開。 */
@@ -378,9 +532,9 @@ body::after {
   box-shadow: 0 0 24px rgba(201, 162, 39, .16);
 }
 .coin--yin {
-  border-color: rgba(232, 220, 200, .22);
+  border-color: rgba(255, 255, 255, .26);
   color: var(--dim);
-  background: radial-gradient(circle at 38% 32%, rgba(232, 220, 200, .06), transparent 68%);
+  background: radial-gradient(circle at 38% 32%, rgba(255, 255, 255, .07), transparent 68%);
 }
 
 @keyframes coinLand {
@@ -390,7 +544,7 @@ body::after {
 }
 
 /* 擲完一爻，讓手停一下。純 CSS，靠 renderUI 重建元素重啟動畫 */
-.btn.btn-toss { animation: recover 560ms var(--ease) both; }
+.btn.btn-toss { animation: recover 700ms var(--ease) both; }
 
 @keyframes recover {
   0%, 68%  { pointer-events: none; opacity: .22; border-color: var(--line); }
@@ -419,7 +573,7 @@ body::after {
 
 .guacard {
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(232, 220, 200, .035), transparent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .04), transparent);
   padding: 1.6rem 1.4rem 1.4rem;
   position: relative;
 }
@@ -436,7 +590,7 @@ body::after {
 }
 
 .guacard--cinnabar { border-color: rgba(178, 53, 44, .28); }
-.guacard--cinnabar .guacard__tag { color: var(--cinnabar-2); }
+
 
 .guacard .hexagram { gap: .62rem; margin-bottom: 1.3rem; }
 
@@ -454,9 +608,8 @@ body::after {
   font-weight: 600;
   letter-spacing: .18em;
   text-indent: .18em;
-  color: var(--gold-2);
+  color: var(--paper);
 }
-.guacard--cinnabar .guacard__full { color: var(--cinnabar-2); }
 .guacard__tri {
   font-size: .8rem;
   letter-spacing: .1em;
@@ -524,7 +677,7 @@ body::after {
   font-weight: 500;
   letter-spacing: .2em;
   text-indent: .2em;
-  color: var(--gold);
+  color: var(--paper);
   margin-bottom: .55rem;
 }
 .rule__body { font-size: .94rem; color: var(--paper-2); line-height: 2.1; }
@@ -668,9 +821,9 @@ body::after {
   margin: 1.6rem 0;
   font-size: .88rem;
   line-height: 2.05;
-  color: #E8C3BE;
+  color: var(--paper);
 }
-.omen strong { color: var(--cinnabar-2); font-weight: 600; }
+.omen strong { color: var(--paper); font-weight: 600; }
 
 .notice {
   border: 1px solid var(--line-2);
@@ -688,7 +841,7 @@ body::after {
   font-size: .76rem;
   letter-spacing: .12em;
   text-indent: .12em;
-  color: #6A6052;
+  color: var(--dimmer);
   line-height: 2.2;
 }
 
