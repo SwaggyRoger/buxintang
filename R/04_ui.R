@@ -141,7 +141,10 @@ quiet    <- function(...) htmltools::div(class = "quiet", ...)
 
 # --- 籤解排版 --------------------------------------------------------------
 
-READING_HEADS <- c("籤解", "打個比方", "所以呢", "一句話")
+# 必須與 03_interpreter.R 的 SYSTEM_PROMPT 回覆格式完全一致，
+# 對不上的話那一段不會被分區，小標會變成正文裡的一行字。
+# tests/test-divination.R 有一項專門檢查這件事。
+READING_HEADS <- c("籤解", "打個比方", "所以呢", "啟")
 
 #' 把解籤師的回覆切成三段來排版。
 #' R 的 strsplit 不支援零寬 lookahead 切割（零長比對會被逐字元拆開），
@@ -177,7 +180,7 @@ render_reading <- function(txt, stamp = NULL) {
                   "籤解"     = "block block--main",
                   "打個比方" = "block block--example",
                   "所以呢"   = "block block--advice",
-                  "一句話"   = "block block--line",
+                  "啟"       = "block block--line",
                   "block")
     htmltools::div(
       class = cls,

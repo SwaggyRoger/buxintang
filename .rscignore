@@ -3,4 +3,5 @@ deploy.R
 tests
 .Renviron.example
 README.md
+README.zh-TW.md
 .claude

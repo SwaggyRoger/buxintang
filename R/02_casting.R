@@ -144,15 +144,20 @@ zhuxi_rule <- function(ben, zhi, moving) {
 SHICHEN <- c("子", "丑", "寅", "卯", "辰", "巳",
              "午", "未", "申", "酉", "戌", "亥")
 
+# 起卦的時辰要是「問卦的人所在的時辰」，不是伺服器的時間。
+# shinyapps.io 的機器跑 UTC，若不指定時區，台灣上午九點會被記成丑時。
+# 這裡固定用台北時間（本 App 是繁體中文、面向台灣使用者）。
+DIVINATION_TZ <- "Asia/Taipei"
+
 #' 依 24 小時制回傳十二時辰（子時跨 23:00–01:00）
-shichen_of <- function(t = Sys.time()) {
-  h <- as.integer(format(t, "%H"))
+shichen_of <- function(t = Sys.time(), tz = DIVINATION_TZ) {
+  h <- as.integer(format(t, "%H", tz = tz))
   SHICHEN[((h + 1L) %/% 2L) %% 12L + 1L]
 }
 
 #' 起卦落款：卜卦講究記下時、地、人；此處記時
-cast_stamp <- function(t = Sys.time()) {
-  sprintf("%s　%s時", format(t, "%Y年%m月%d日"), shichen_of(t))
+cast_stamp <- function(t = Sys.time(), tz = DIVINATION_TZ) {
+  sprintf("%s　%s時", format(t, "%Y年%m月%d日", tz = tz), shichen_of(t, tz))
 }
 
 # --- 卜不過三 --------------------------------------------------------------

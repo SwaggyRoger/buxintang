@@ -94,11 +94,20 @@ chk(abs(tb[["6"]] - .125) < .01 && abs(tb[["7"]] - .375) < .01 &&
             paste(sprintf("%.3f", tb), collapse = ",")))
 
 cat("\n== 8. 時辰 ==\n")
-h2s <- function(h) shichen_of(as.POSIXct(sprintf("2026-01-01 %02d:30:00", h), tz = "UTC"))
+h2s <- function(h) shichen_of(as.POSIXct(sprintf("2026-01-01 %02d:30:00", h),
+                                        tz = "Asia/Taipei"))
 chk(h2s(23) == "子" && h2s(0) == "子", "23:xx / 00:xx 為子時")
 chk(h2s(1) == "丑" && h2s(2) == "丑", "01-03 為丑時")
 chk(h2s(11) == "午" && h2s(12) == "午", "11-13 為午時")
 chk(h2s(22) == "亥", "21-23 為亥時")
+
+# 伺服器跑 UTC（shinyapps.io 就是），時辰仍要以台北時間為準
+utc_instant <- as.POSIXct("2026-09-08 01:30:00", tz = "UTC")   # 台北 09:30
+chk(shichen_of(utc_instant) == "巳",
+    sprintf("UTC 01:30 -> 台北 09:30 -> 巳時（得 %s）", shichen_of(utc_instant)))
+chk(grepl("2026年09月08日　巳時", cast_stamp(utc_instant)),
+    sprintf("落款用台北日期時辰（得 %s）", cast_stamp(utc_instant)))
+chk(DIVINATION_TZ == "Asia/Taipei", "起卦時區固定為 Asia/Taipei")
 
 cat("\n== 9. 卜不過三 ==\n")
 L <- list()
@@ -140,7 +149,7 @@ render_ok("卦成",   view_formed(mk("formed", tos, dv)))
 render_ok("沉吟",   view_pondering())
 render_ok("瀆",     view_refused(mk("refused", list(), NULL, nth = 3L)))
 
-sample_reading <- "【籤解】\n你問的這件事，卦上已經動了。\n第二句話。\n\n【打個比方】\n就像你已經把辭呈打好，只是還沒按下寄出。\n\n【所以呢】\n先別急著遞辭呈。\n\n【一句話】\n走可以，但別是逃。"
+sample_reading <- "【籤解】\n你問的這件事，卦上已經動了。\n第二句話。\n\n【打個比方】\n就像你已經把辭呈打好，只是還沒按下寄出。\n\n【所以呢】\n先別急著遞辭呈。\n\n【啟】\n走可以，但別是逃。"
 v <- mk("read", tos, dv); v$reading <- sample_reading
 render_ok("籤解", view_read(v))
 h <- as.character(render_reading(sample_reading, stamp = cast_stamp()))
@@ -153,7 +162,7 @@ chk(grepl("reading__body", h2), "未照格式時素排不開天窗")
 
 cat("\n== 12. 離線籤解 ==\n")
 off <- offline_reading(dv, "要不要辭掉現在的工作？")
-chk(grepl("【籤解】", off) && grepl("【一句話】", off), "離線籤解格式完整")
+chk(grepl("【籤解】", off) && grepl("【啟】", off), "離線籤解格式完整")
 
 cat("\n== 13. 完整 UI 物件 ==\n")
 render_ok("page_fluid", ui)
