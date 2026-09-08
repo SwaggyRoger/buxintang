@@ -34,6 +34,7 @@ head_assets <- function() {
                     "&display=swap")
     ),
     htmltools::tags$link(rel = "stylesheet", href = "styles.css"),
+    htmltools::tags$script(src = "ritual.js", defer = NA),
     htmltools::tags$title(paste0(APP_NAME, "・", APP_TAGLINE)),
     htmltools::tags$meta(name = "viewport",
                          content = "width=device-width, initial-scale=1")

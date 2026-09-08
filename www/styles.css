@@ -561,37 +561,29 @@ body::after {
   100% { opacity: 0;  transform: translateY(-16px) scaleY(1.15) skewX(11deg); }
 }
 
-/* 沉吟的話語自己輪替，純 CSS，不動用 JS */
+/* 沉吟的旁白：由 ritual.js 一句一句換，整副打亂、一輪之內不重複。
+   （原本用 nth-child 的 animation-delay 輪播固定五句，等四十秒會轉三遍） */
 .pondering__lines {
   position: relative;
-  height: 2.4em;
+  min-height: 3.4em;
   font-size: 1rem;
-  letter-spacing: .06em;   /* 這是句子不是標籤，字距要收 */
+  letter-spacing: .06em;
   color: var(--paper-2);
 }
 .pondering__lines > span {
   position: absolute;
   inset: 0;
   opacity: 0;
-  animation: cycleLine 15s linear infinite;
+  transform: translateY(7px);
+  transition: opacity 640ms var(--ease), transform 640ms var(--ease);
 }
-.pondering__lines > span:nth-child(1) { animation-delay:  0s; }
-.pondering__lines > span:nth-child(2) { animation-delay:  3s; }
-.pondering__lines > span:nth-child(3) { animation-delay:  6s; }
-.pondering__lines > span:nth-child(4) { animation-delay:  9s; }
-.pondering__lines > span:nth-child(5) { animation-delay: 12s; }
-
-@keyframes cycleLine {
-  0%,  1%  { opacity: 0; transform: translateY(7px); }
-  5%, 17%  { opacity: 1; transform: none; }
-  21%,100% { opacity: 0; transform: translateY(-7px); }
+.pondering__lines > span.is-on {
+  opacity: 1;
+  transform: none;
 }
 
-/* 動畫關掉時只留第一句，不然整段會是空的 */
-@media (prefers-reduced-motion: reduce) {
-  .pondering__lines > span { opacity: 0; }
-  .pondering__lines > span:nth-child(1) { opacity: 1; }
-}
+/* JS 沒跑起來的話至少讓第一句看得見，不要留一片空白 */
+.pondering__lines:not([data-rotating]) > span:first-child { opacity: 1; transform: none; }
 
 /* --- 籤解（全場唯一的宣紙） ---------------------------------------------- */
 .reading {
@@ -710,7 +702,6 @@ body::after {
     transition-duration: .01ms !important;
   }
   .reading { clip-path: none; }
-  .pondering__lines > span:nth-child(1) { opacity: 1; }
 }
 
 /* 字距在極窄螢幕會撐爆版面，收一點 */
